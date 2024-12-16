@@ -3,6 +3,17 @@ import {
   getSupports,
   login,
 } from "./src/controllers/supportController.js";
+import jwt from "jsonwebtoken";
+
+const SECRET_KEY = process.env.JWT_SECRET_KEY || "mysecretkey";
+
+const verifyToken = (token) => {
+  try {
+    return jwt.verify(token, SECRET_KEY);
+  } catch (error) {
+    return null;
+  }
+};
 
 export const handler = async (event) => {
   const corsHeaders = {
@@ -10,6 +21,10 @@ export const handler = async (event) => {
     "Access-Control-Allow-Headers": "Content-Type",
     "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
   };
+
+  const token = event.headers.Authorization || event.headers.authorization;
+  const tokenWithoutBearer = token ? token.split(" ")[1] : null;
+  const user = tokenWithoutBearer ? verifyToken(tokenWithoutBearer) : null;
 
   if (event.requestContext.http.method === "OPTIONS") {
     return {
@@ -41,6 +56,13 @@ export const handler = async (event) => {
           },
         };
       case "GET":
+        if (!user) {
+          return {
+            statusCode: 401,
+            headers: corsHeaders,
+            body: JSON.stringify({ message: "No autorizado" }),
+          };
+        }
         const getResponse = await getSupports(event);
         return {
           ...getResponse,

@@ -1,7 +1,10 @@
 import { Support } from "../models/supportModel.js";
 import { SupportService } from "../services/supportService.js";
+import jwt from "jsonwebtoken";
 
 const supportService = new SupportService();
+const SECRET_KEY = process.env.JWT_SECRET_KEY || "mysecretkey";
+const JWT_EXPIRATION = "1h";
 
 export const createSupport = async (event) => {
   try {
@@ -63,10 +66,17 @@ export const login = async (event) => {
       };
     }
 
+    const token = jwt.sign(
+      { email: user.email, name: user.name, userId: user.id },
+      SECRET_KEY,
+      { expiresIn: JWT_EXPIRATION }
+    );
+
     return {
       statusCode: 200,
       body: JSON.stringify({
         message: "Inicio de sesión exitoso",
+        token,
         user: { email: user.email, name: user.name },
       }),
     };
