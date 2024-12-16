@@ -11,7 +11,7 @@ export const handler = async (event) => {
     "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
   };
 
-  if (event.httpMethod === "OPTIONS") {
+  if (event.requestContext.http.method === "OPTIONS") {
     return {
       statusCode: 200,
       headers: corsHeaders,
@@ -20,7 +20,7 @@ export const handler = async (event) => {
   }
 
   try {
-    switch (event.httpMethod) {
+    switch (event.requestContext.http.method) {
       case "POST":
         if (event.rawPath === "/login") {
           const loginResponse = await login(event);

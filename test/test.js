@@ -71,7 +71,9 @@ describe("Lambda Handler", () => {
 
   it("debería manejar una solicitud OPTIONS", async () => {
     const event = {
-      httpMethod: "OPTIONS",
+      requestContext: {
+        http: { method: "OPTIONS" },
+      },
     };
 
     const result = await handler(event);
@@ -81,7 +83,9 @@ describe("Lambda Handler", () => {
 
   it("debería manejar una solicitud POST para crear soporte", async () => {
     const event = {
-      httpMethod: "POST",
+      requestContext: {
+        http: { method: "POST" },
+      },
       rawPath: "/",
       body: JSON.stringify({
         name: "name",
@@ -101,7 +105,9 @@ describe("Lambda Handler", () => {
 
   it("debería manejar una solicitud GET para obtener soportes", async () => {
     const event = {
-      httpMethod: "GET",
+      requestContext: {
+        http: { method: "GET" },
+      },
       rawPath: "/",
     };
 
@@ -114,7 +120,9 @@ describe("Lambda Handler", () => {
 
   it("debería manejar una solicitud POST para login exitoso", async () => {
     const event = {
-      httpMethod: "POST",
+      requestContext: {
+        http: { method: "POST" },
+      },
       rawPath: "/login",
       body: JSON.stringify({ email: "user@test.com", password: "1234" }),
     };
@@ -129,7 +137,9 @@ describe("Lambda Handler", () => {
     mockFindUserByEmail.mockResolvedValueOnce(null);
 
     const event = {
-      httpMethod: "POST",
+      requestContext: {
+        http: { method: "POST" },
+      },
       rawPath: "/login",
       body: JSON.stringify({ email: "wrong@test.com", password: "1234" }),
     };
@@ -142,7 +152,9 @@ describe("Lambda Handler", () => {
 
   it("debería devolver 405 para métodos no permitidos", async () => {
     const event = {
-      httpMethod: "PUT",
+      requestContext: {
+        http: { method: "PUT" },
+      },
     };
 
     const result = await handler(event);
@@ -155,7 +167,9 @@ describe("Lambda Handler", () => {
     mockFindAll.mockRejectedValueOnce(new Error("DynamoDB Error"));
 
     const event = {
-      httpMethod: "GET",
+      requestContext: {
+        http: { method: "GET" },
+      },
       rawPath: "/supports",
     };
 
