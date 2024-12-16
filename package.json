@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "test": "jest"
   },
   "type": "module",
   "keywords": [],
@@ -17,5 +18,12 @@
     "serverless": "^4.4.13",
     "serverless-http": "^3.2.0",
     "uuid": "^11.0.3"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.26.0",
+    "@babel/preset-env": "^7.26.0",
+    "aws-sdk-mock": "^6.2.0",
+    "babel-jest": "^29.7.0",
+    "jest": "^29.7.0"
   }
 }
