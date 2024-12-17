@@ -50,5 +50,5 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
         run: |
-          aws lambda update-function-code --function-name lambda_function --zip-file fileb://function.zip
+          aws lambda update-function-code --function-name support-handler --zip-file fileb://function.zip
 
