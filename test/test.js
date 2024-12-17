@@ -2,8 +2,8 @@ import { handler } from "../index.js";
 import { SupportService } from "../src/services/supportService.js";
 import AWSMock from "aws-sdk-mock";
 import AWS from "aws-sdk";
+import jwt from "jsonwebtoken";
 
-// Configura mocks de AWS y variables de entorno
 AWSMock.setSDKInstance(AWS);
 
 process.env.DYNAMODB_TABLE = "SupportTable";
@@ -11,9 +11,14 @@ process.env.USERS_TABLE = "UsersTable";
 
 describe("Lambda Handler", () => {
   let mockFindAll, mockCreate, mockFindUserByEmail;
+  const generateTestToken = () => {
+    const payload = { email: "user@test.com", name: "Test User" };
+    const secretKey = "mysecretkey";
+    const token = jwt.sign(payload, secretKey, { expiresIn: "1h" });
+    return token;
+  };
 
   beforeAll(() => {
-    // Mock de métodos del servicio
     mockFindAll = jest
       .spyOn(SupportService.prototype, "findAll")
       .mockResolvedValue([
@@ -71,6 +76,7 @@ describe("Lambda Handler", () => {
 
   it("debería manejar una solicitud OPTIONS", async () => {
     const event = {
+      headers: { Authorization: "" },
       requestContext: {
         http: { method: "OPTIONS" },
       },
@@ -83,6 +89,7 @@ describe("Lambda Handler", () => {
 
   it("debería manejar una solicitud POST para crear soporte", async () => {
     const event = {
+      headers: { Authorization: "" },
       requestContext: {
         http: { method: "POST" },
       },
@@ -104,7 +111,9 @@ describe("Lambda Handler", () => {
   });
 
   it("debería manejar una solicitud GET para obtener soportes", async () => {
+    const token = generateTestToken();
     const event = {
+      headers: { Authorization: `Bearer ${token}` },
       requestContext: {
         http: { method: "GET" },
       },
@@ -120,6 +129,7 @@ describe("Lambda Handler", () => {
 
   it("debería manejar una solicitud POST para login exitoso", async () => {
     const event = {
+      headers: { Authorization: "" },
       requestContext: {
         http: { method: "POST" },
       },
@@ -137,6 +147,7 @@ describe("Lambda Handler", () => {
     mockFindUserByEmail.mockResolvedValueOnce(null);
 
     const event = {
+      headers: { Authorization: "" },
       requestContext: {
         http: { method: "POST" },
       },
@@ -152,6 +163,7 @@ describe("Lambda Handler", () => {
 
   it("debería devolver 405 para métodos no permitidos", async () => {
     const event = {
+      headers: { Authorization: "" },
       requestContext: {
         http: { method: "PUT" },
       },
@@ -166,11 +178,13 @@ describe("Lambda Handler", () => {
   it("debería manejar errores internos del servidor", async () => {
     mockFindAll.mockRejectedValueOnce(new Error("DynamoDB Error"));
 
+    const token = generateTestToken();
     const event = {
+      headers: { Authorization: `Bearer ${token}` },
       requestContext: {
         http: { method: "GET" },
       },
-      rawPath: "/supports",
+      rawPath: "/",
     };
 
     const result = await handler(event);
